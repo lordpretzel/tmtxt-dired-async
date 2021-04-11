@@ -1,24 +1,60 @@
-;;; an collection of functions that I developed to execute some commands
-;;; asynchronously
-;;; only run ob unix-based systems
+;;; tmtxt-dired-async.el --- Asynchoronous execution library for Emacs Dired -*- lexical-binding: t -*-
 
-;;; TODO: stick the output window with the result buffer
-;;; using dedicated window
-;;; TODO: shortcut keys for close the result window
-;;; TODO: check process exit status, if not success, not close the result window
-;;; TODO: undo function
+;; Author: Trần Xuân Trường
+;; Maintainer: Trần Xuân Trường
+;; Version: 0.1
+;; Package-Requires: ()
+;; Homepage: https://truongtx.me/tmtxt-dired-async.html
+;; Keywords: dired, asynchoronous, rsync
 
-;;; ----------------------------------------------
-;;; ----------------------------------------------
-;;; get file size
+
+;; This file is not part of GNU Emacs
+
+;; This file is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 3, or (at your option)
+;; any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; For a full copy of the GNU General Public License
+;; see <http://www.gnu.org/licenses/>.
+
+
+;;; Commentary:
+
+;; A library for Emacs Dired mode to copy, compress, decompress files
+;; asynchronously.  It also provides the ability to mark files in multiple
+;; directories and then copy all of them into a destination library.  This
+;; library is designed for Unix-based system like MacOS, Ubuntu,… The reason why
+;; I developed this library is to overcome Emacs Dired’s drawbacks.  Everytime I
+;; need to copy, move, compress, uncompress,… big files, Emacs is blocked until
+;; those processes finish execution.  That’s really annoying.  This extension
+;; helps solve that problem by providing Emacs with the ability to
+;; asynchronously execute those tasks as well as display the output to the user.
+
+;;; Code:
+
+;; TODO: stick the output window with the result buffer
+;; using dedicated window
+;; TODO: shortcut keys for close the result window
+;; TODO: check process exit status, if not success, not close the result window
+;; TODO: undo function
+
+;; ----------------------------------------------
+;; ----------------------------------------------
+;; get file size
 (defvar tda/get-files-size-command "du"
-  "The name of \"du\" command (or the path to the \"du\" command)")
+  "The name of \"du\" command (or the path to the \"du\" command).")
 (defvar tda/get-files-size-arguments "-hc"
-  "The arguments for passing into the \"du\" command")
+  "The arguments for passing into the \"du\" command.")
 
-;;; get file size
+;; get file size
 (defun tda/get-files-size ()
-  "Calculate files size for all the marked files"
+  "Calculate files size for all the marked files."
   (interactive)
   (let ((files (dired-get-marked-files)) command)
 	;; the get files size command
@@ -30,16 +66,17 @@
 	;; execute the command
 	(tat/execute-async command "file size")))
 
-;;; ----------------------------------------------
-;;; ----------------------------------------------
-;;; Async Rsync
+;; ----------------------------------------------
+;; ----------------------------------------------
+;; Async Rsync
 (defvar tda/rsync-command-name "rsync"
   "The name of rsync command (or the path to the rsync command).")
 (defvar tda/rsync-arguments "-avz --progress"
-  "The arguments for passing into the rsync command")
+  "The arguments for passing into the rsync command.")
 
 (defun tda/rsync (dest)
-  "Asynchronously copy file using Rsync for dired.
+  "Asynchronously copy file to DEST using Rsync for dired.
+
 	This function runs only on Unix-based system.
 	Usage: same as normal dired copy function."
   (interactive ;; offer dwim target as the suggestion
@@ -58,7 +95,8 @@
 	(tat/execute-async command "rsync")))
 
 (defun tda/rsync-sudo (dest)
-  "Asynchronously copy file using Rsync for dired.
+  "Asynchronously copy file to DEST using Rsync for dired.
+
 	This function runs only on Unix-based system.
 	Usage: same as normal dired copy function."
   (interactive ;; offer dwim target as the suggestion
@@ -77,7 +115,8 @@
 	(tat/execute-async command "rsync")))
 
 (defun tda/rsync-delete (dest)
-  "Asynchronously copy file using Rsync for dired include the delete option
+  "Asynchronously copy file to DEST using Rsync for dired include the delete option.
+
 	This function runs only on Unix-based system.
 	Usage: same as normal dired copy function."
   (interactive ;; offer dwim target as the suggestion
@@ -96,7 +135,8 @@
 	(tat/execute-async command "rsync")))
 
 (defun tda/rsync-delete-sudo (dest)
-  "Asynchronously copy file using Rsync for dired include the delete option
+  "Asynchronously copy file to DEST using Rsync for dired include the delete option.
+
 	This function runs only on Unix-based system.
 	Usage: same as normal dired copy function."
   (interactive ;; offer dwim target as the suggestion
@@ -114,16 +154,16 @@
 	;; execute the command asynchronously
 	(tat/execute-async command "rsync")))
 
-;;; ----------------------------------------------
-;;; ----------------------------------------------
-;;; async zip files
+;; ----------------------------------------------
+;; ----------------------------------------------
+;; async zip files
 (defvar tda/zip-command "zip"
-  "The command name (or the path to the zip command")
+  "The command name (or the path to the zip command.")
 (defvar tda/zip-arguments
   "-ru9" "The compression level for dired async zip command, from 0-9. This variable is a string, so if you change this value, please set it as a string.")
 
 (defun tda/zip (output)
-  "Asynchronously compress marked files to the output file"
+  "Asynchronously compress marked files to the output file."
   (interactive
    (list (expand-file-name (read-file-name "Add to file: "))))
 
@@ -145,16 +185,16 @@
 	;; execute the command asynchronously
 	(tat/execute-async command "zip")))
 
-;;; ----------------------------------------------
-;;; ----------------------------------------------
-;;; Uncompress function
+;; ----------------------------------------------
+;; ----------------------------------------------
+;; Uncompress function
 (defvar tda/unzip-command "unzip"
-  "The command name (or path to the unzip command)")
+  "The command name (or path to the unzip command).")
 (defvar tda/unzip-arguments ""
-  "The arguments for passing into the unzip command")
+  "The arguments for passing into the unzip command.")
 
 (defun tda/unzip ()
-  "Asynchronously decompress the zip file at point"
+  "Asynchronously decompress the zip file at point."
   (interactive)
 
   (let (command
@@ -180,14 +220,14 @@
 	;; execute the command asynchronously
 	(tat/execute-async command "unzip")))
 
-;;; ----------------------------------------------
-;;; ----------------------------------------------
-;;; Rsync from multiple directories
+;; ----------------------------------------------
+;; ----------------------------------------------
+;; Rsync from multiple directories
 (defvar tda/rsync-multiple-file-list
-  () "The list of the files to be copied")
+  () "The list of the files to be copied.")
 
 (defun tda/rsync-multiple-mark-file ()
-  "Add file to waiting list for copying"
+  "Add file to waiting list for copying."
   (interactive)
   ;; Add file to the list
   (add-to-list 'tda/rsync-multiple-file-list
@@ -197,7 +237,7 @@
    (concat "File " (dired-get-filename 'verbatim) " added to waiting list.")))
 
 (defun tda/rsync-multiple-empty-list ()
-  "Empty the waiting list"
+  "Empty the waiting list."
   (interactive)
   ;; Empty the list
   (setq tda/rsync-multiple-file-list '())
@@ -205,7 +245,7 @@
   (message "Waiting list empty."))
 
 (defun tda/rsync-multiple-remove-item ()
-  "Remove the file at point from the waiting list if it is in"
+  "Remove the file at point from the waiting list if it is in."
   (interactive)
   (let ((file-to-remove (dired-get-filename)))
 	;; remove the item from the list
@@ -217,7 +257,7 @@
 
 ;; Copy file from multiple directories
 (defun tda/rsync-multiple ()
-  "Mark file in multiple places and then paste in 1 directory"
+  "Mark file in multiple places and then paste in 1 directory."
   (interactive)
 
   (let (command)
@@ -240,13 +280,16 @@
 		;; empty the waiting list
 		(tda/rsync-multiple-empty-list)))))
 
-;;; ----------------------------------------------
-;;; ----------------------------------------------
-;;; download file to current dir
+;; ----------------------------------------------
+;; ----------------------------------------------
+;; download file to current dir
 (defvar tda/download-command "wget"
-  "The download program to download to current dir. The default is wget, ou can replace it to curl, aria2c,...")
+  "The download program to download to current dir.
+
+The default is wget, ou can replace it to curl, aria2c, or others.")
+
 (defun tda/download-to-current-dir (src)
-  "Read the link and download the file to current directory"
+  "Read the link and download the file to current directory/"
   (interactive (list (read-from-minibuffer "Link: ")))
   (let ((command ""))
 	;; create the command
@@ -256,8 +299,9 @@
 	;; execute
 	(tat/execute-async command "download")))
 (defun tda/download-clipboard-link-to-current-dir ()
-  "Read the clipboard link and download it into the current dir"
+  "Read the clipboard link and download it into the current dir."
   (interactive)
   (tda/download-to-current-dir (x-get-clipboard)))
 
 (provide 'tmtxt-dired-async)
+;;; tmtxt-dired-async.el ends here
