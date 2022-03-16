@@ -7,9 +7,6 @@
 ;; Homepage: https://truongtx.me/tmtxt-dired-async.html
 ;; Keywords: dired, asynchoronous, rsync
 
-;; required for dired-dwim-target-directory
-(require 'dired-aux)
-
 ;; This file is not part of GNU Emacs
 
 ;; This file is free software; you can redistribute it and/or modify
@@ -48,6 +45,10 @@
 
 ;; ----------------------------------------------
 ;; ----------------------------------------------
+
+;; required for dired-dwim-target-directory
+(require 'dired-aux)
+
 ;; get file size
 (defvar tda/get-files-size-command "du"
   "The name of \"du\" command (or the path to the \"du\" command).")
