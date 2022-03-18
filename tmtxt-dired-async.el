@@ -3,7 +3,7 @@
 ;; Author: Trần Xuân Trường
 ;; Maintainer: Trần Xuân Trường
 ;; Version: 0.1
-;; Package-Requires: ()
+;; Package-Requires: (tmtxt-async-tasks)
 ;; Homepage: https://truongtx.me/tmtxt-dired-async.html
 ;; Keywords: dired, asynchoronous, rsync
 
@@ -48,6 +48,7 @@
 
 ;; required for dired-dwim-target-directory
 (require 'dired-aux)
+(require 'tmtxt-async-tasks)
 
 ;; get file size
 (defvar tda/get-files-size-command "du"
